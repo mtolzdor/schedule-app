@@ -6,10 +6,14 @@ import {
   endOfMonth,
   format,
   isSameDay,
+  getDay,
+  getHours,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
 import { useRouter } from "next/router";
 import { NextPage } from "next/types";
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Header } from "~/components/Header";
 import { useDebouncer } from "~/hooks/useDebouncer";
 import { api } from "~/utils/api";
@@ -210,27 +214,6 @@ const MemberList = (props: { groupId: string; shifts: Shift[] }) => {
   );
 };
 
-// filter by day of the week / display shift date in local string for readability
-const FilterShift = (props: { data: Shift[]; day: number }) => {
-  const shifts = useMemo(
-    () => props.data?.filter((date) => date.startDate.getDay() === props.day),
-    [props.data, props.day]
-  );
-
-  return (
-    <div>
-      <ul>
-        {shifts.map((shift) => (
-          <div className="flex flex-row space-x-8">
-            <li>{shift.startDate.toLocaleString("en-us")}</li>
-            <li>{shift.endDate.toLocaleString("en-us")}</li>
-          </div>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
 const CreateShift = (props: { groupId: string }) => {
   const [time, setTime] = useState({
     startTime: new Date(),
@@ -302,88 +285,124 @@ const ShiftTable = (props: { groupId: string }) => {
     props.groupId
   );
 
+  const today = startOfToday();
+
+  const dates = eachDayOfInterval({
+    start: startOfWeek(today),
+    end: endOfWeek(today),
+  });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
+  const filterByDay = (day: Date) => {
+    const shifts = data!.filter((shift) => isSameDay(shift.startDate, day));
+    return shifts;
+  };
+
   return (
-    <div className="m-6 flex h-full w-full flex-shrink justify-center rounded-lg bg-gradient-to-b from-slate-800 to-slate-700 px-10 pb-6 pt-3 shadow-inner">
-      <div className="h-80 w-2/3 overflow-auto bg-slate-600">
-        <div className="text-md relative grid grid-cols-7 content-center overflow-auto text-center font-bold">
-          {dayOfWeek.map((day, i) => (
-            <>
-              <div className="h-12 self-center bg-slate-500 pt-3 text-white">
-                {day}
+    <div className="relative m-6 flex h-full w-full flex-shrink justify-center rounded-lg bg-gradient-to-b from-slate-800 to-slate-700 px-10 pb-6 pt-3 shadow-inner">
+      <div className="h-80 w-2/3 overflow-scroll rounded bg-slate-600">
+        <div className="text-md grid grid-cols-8 content-center text-center font-bold">
+          <div className="flex flex-col text-slate-400">
+            <div className="h-12 bg-slate-500"></div>
+            <div className="h-12">6 AM -</div>
+            <div className="h-12">7 AM -</div>
+            <div className="h-12">8 AM -</div>
+            <div className="h-12">9 AM -</div>
+            <div className="h-12">10 AM -</div>
+            <div className="h-12">11 AM -</div>
+            <div className="h-12">12 PM -</div>
+            <div className="h-12">1 PM -</div>
+            <div className="h-12">2 PM -</div>
+            <div className="h-12">3 PM -</div>
+            <div className="h-12">4 PM -</div>
+            <div className="h-12">5 PM -</div>
+            <div className="h-12">6 PM -</div>
+            <div className="h-12">7 PM -</div>
+            <div className="h-12">8 PM -</div>
+            <div className="h-12">9 PM -</div>
+            <div className="h-12">10 PM -</div>
+            <div className="h-12">11 PM -</div>
+            <div className="h-12">12 AM -</div>
+          </div>
+          {dates.map((day) => (
+            <div key={day.toString()} className="flex flex-col">
+              <div className="h-12 w-full self-center bg-slate-500 pt-3 text-white">
+                {format(day, "E")}
               </div>
-              <div className="absolute row-start-5">is it working?</div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-              <div className="h-12 w-auto border"></div>
-            </>
+              <ShiftDisplay shift={filterByDay(day)} />
+            </div>
           ))}
         </div>
-        {/*
-        <div className="grid grid-cols-8">
-          {data?.filter((shift) => isSameDay(shift.startDate, 1)).toString()}
-          <div className="justify-self-end text-slate-300">6 AM</div>
-          <div className="h-12 border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="justify-self-end text-slate-300">7 AM</div>
-          <div className="h-12 border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="justify-self-end text-slate-300">8 AM</div>
-          <div className="h-12 border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="justify-self-end text-slate-300">9 AM</div>
-          <div className="h-12 border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="justify-self-end text-slate-300">10 AM</div>
-          <div className="h-12 border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-          <div className="border"></div>
-        </div>
-          */}
       </div>
     </div>
+  );
+};
+
+const ShiftDisplay = (props: { shift: Shift[] | undefined }) => {
+  const shiftTimes: { [index: string]: string } = {
+    "6 AM": "row-start-1",
+    "7 AM": "row-start-2",
+    "8 AM": "row-start-3",
+    "9 AM": "row-start-4",
+    "10 AM": "row-start-5",
+    "11 AM": "row-start-6",
+  };
+
+  console.log(props.shift);
+
+  return (
+    <div className="relative z-0 grid grid-cols-1">
+      {props.shift!.map((time) => {
+        const t =
+          shiftTimes[format(time.startDate, "h aa") as keyof typeof shiftTimes];
+        return (
+          <div
+            className={`absolute z-10 h-48 w-full rounded bg-blue-500 bg-opacity-90 shadow-md ${t}`}
+          >
+            {format(time.startDate, "h aa")} ~ {format(time.endDate, "h aa")}
+          </div>
+        );
+      })}
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+      <div className="h-12 border"></div>
+    </div>
+  );
+};
+
+const Temp = (props: { hour: number }) => {
+  const shiftTimes = {
+    6: "row-start-1",
+    7: "row-start-2",
+    8: "row-start-3",
+    9: "row-start-4",
+    10: "row-start-5",
+  };
+
+  return (
+    <div
+      className={`absolute z-10 ${
+        shiftTimes[props.hour as keyof typeof shiftTimes]
+      }`}
+    ></div>
   );
 };
