@@ -1,5 +1,5 @@
-import { signOut } from "next-auth/react";
-import { BiLogOut, BiMenu } from "react-icons/bi";
+import { signIn, useSession, signOut } from "next-auth/react";
+import { BiLogIn, BiLogOut, BiMenu } from "react-icons/bi";
 import Link from "next/link";
 import { VscAccount } from "react-icons/vsc";
 import { GrGroup } from "react-icons/gr";
@@ -20,29 +20,40 @@ export const Header: React.FC = () => {
   );
 };
 
-const Menu = () => {
+const Menu: React.FC = () => {
+  const { data: session } = useSession();
+
   return (
     <div className="dropdown-end dropdown">
       <label tabIndex={0} className="btn-ghost btn">
         <BiMenu size={28} color="white" />
       </label>
-      <ul className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow">
-        <li>
-          <Link href="/profile">
-            <VscAccount />
-            Profile
-          </Link>
-        </li>
-        <li>
-          <GroupList />
-        </li>
-        <li>
-          <button onClick={() => signOut()}>
-            <BiLogOut />
-            Log Out
+      {!session ? (
+        <ul className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow">
+          <button onClick={() => void signIn()}>
+            <BiLogIn />
+            Sign In
           </button>
-        </li>
-      </ul>
+        </ul>
+      ) : (
+        <ul className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow">
+          <li>
+            <Link href="/profile">
+              <VscAccount />
+              Profile
+            </Link>
+          </li>
+          <li>
+            <GroupList />
+          </li>
+          <li>
+            <button onClick={() => void signOut()}>
+              <BiLogOut />
+              Log Out
+            </button>
+          </li>
+        </ul>
+      )}
     </div>
   );
 };

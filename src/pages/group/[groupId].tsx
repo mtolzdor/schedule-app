@@ -1,4 +1,5 @@
-import { Shift } from "@prisma/client";
+import type { Shift } from "@prisma/client";
+import type { ChangeEvent } from "react";
 import {
   startOfToday,
   eachDayOfInterval,
@@ -11,7 +12,7 @@ import {
 } from "date-fns";
 import { useRouter } from "next/router";
 import { NextPage } from "next/types";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useDebouncer } from "~/hooks/useDebouncer";
 import { api } from "~/utils/api";
 
@@ -319,6 +320,7 @@ const ShiftDisplay = (props: { shift: Shift[] | undefined }) => {
           shiftTimes[format(time.startDate, "h aa") as keyof typeof shiftTimes];
         return (
           <div
+            key={time.startDate.toString()}
             className={`absolute z-10 h-48 w-full rounded bg-blue-500 bg-opacity-90 shadow-md ${t}`}
           >
             {format(time.startDate, "h aa")} ~ {format(time.endDate, "h aa")}

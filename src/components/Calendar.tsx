@@ -2,7 +2,6 @@ import {
   eachDayOfInterval,
   endOfMonth,
   format,
-  getDay,
   isSameDay,
   startOfMonth,
   startOfToday,
@@ -18,11 +17,6 @@ export const Calendar = () => {
     start: startOfMonth(today),
     end: endOfMonth(today),
   });
-
-  function getColStart(day: Date) {
-    const startCol = getDay(day);
-    return "col-start-" + startCol;
-  }
 
   return (
     <div className="mx-auto max-w-md md:max-w-6xl">
@@ -40,11 +34,8 @@ export const Calendar = () => {
       </div>
 
       <div className="grid h-full grid-cols-7 justify-center bg-gray-300">
-        {dates.map((day, i) => (
-          <div
-            className={`h-40 border bg-white ${i === 0 && getColStart(day)}`}
-            key={day.toString()}
-          >
+        {dates.map((day) => (
+          <div className="h-40 border bg-white" key={day.toString()}>
             <div>{day.getDate()}</div>
             <div>
               {data?.shifts

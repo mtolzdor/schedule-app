@@ -2,7 +2,6 @@ import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import { Calendar } from "~/components/Calendar";
-import { Header } from "~/components/Header";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -28,7 +27,10 @@ const Home: NextPage = () => {
                   assumenda excepturi exercitationem quasi. In deleniti eaque
                   aut repudiandae et a id nisi.
                 </p>
-                <button className="btn-primary btn" onClick={() => signIn()}>
+                <button
+                  className="btn-primary btn"
+                  onClick={() => void signIn()}
+                >
                   Get Started
                 </button>
               </div>
