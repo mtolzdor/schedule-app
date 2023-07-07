@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Header from "~/components/Header";
 import { api } from "~/utils/api";
 
 const Profile = () => {
@@ -21,8 +20,6 @@ const Profile = () => {
 
   return (
     <div>
-      {/*create Global Layout*/}
-      <Header />
       <div className="flex justify-center">
         <div className="form-control" onSubmit={handleMutation}>
           <label className="label">
