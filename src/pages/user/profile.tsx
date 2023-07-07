@@ -1,27 +1,12 @@
-import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 
 const Profile = () => {
   const query = api.users.getMe.useQuery();
-  const mutation = api.users.updateUser.useMutation();
-  const [userData, setUserData] = useState({});
-
-  useEffect(() => {
-    if (query.data) {
-      if (query.data.name != null) {
-        setUserData({ name: query.data?.name, email: query.data.email });
-      } else setUserData({ name: "", email: query.data.email });
-    }
-  }, [query.data]);
-
-  const handleMutation = () => {
-    //mutation.mutate();
-  };
 
   return (
     <div>
       <div className="flex justify-center">
-        <div className="form-control" onSubmit={handleMutation}>
+        <div className="form-control">
           <label className="label">
             <span className="center-text label-text">Name:</span>
           </label>

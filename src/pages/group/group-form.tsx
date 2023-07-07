@@ -1,9 +1,5 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { api } from "~/utils/api";
-import Email from "next-auth/providers/email";
-import { Header } from "~/components/Header";
 
 const GroupForm = () => {
   const [group, setGroup] = useState({ name: "", email: "" });

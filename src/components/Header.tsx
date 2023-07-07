@@ -1,4 +1,4 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { BiLogOut, BiMenu } from "react-icons/bi";
 import Link from "next/link";
 import { VscAccount } from "react-icons/vsc";
@@ -6,8 +6,6 @@ import { GrGroup } from "react-icons/gr";
 import { api } from "~/utils/api";
 
 export const Header: React.FC = () => {
-  //const { data: sessionData } = useSession();
-
   return (
     <div className="navbar border-b-2 border-slate-800 bg-slate-700">
       <div className="flex-1">

@@ -6,15 +6,12 @@ import {
   endOfMonth,
   format,
   isSameDay,
-  getDay,
-  getHours,
   startOfWeek,
   endOfWeek,
 } from "date-fns";
 import { useRouter } from "next/router";
 import { NextPage } from "next/types";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Header } from "~/components/Header";
+import { ChangeEvent, useState } from "react";
 import { useDebouncer } from "~/hooks/useDebouncer";
 import { api } from "~/utils/api";
 
@@ -25,7 +22,7 @@ const Group: NextPage = () => {
 
   const isAdmin = api.groups.checkPermision.useQuery(groupId);
 
-  const { data, isSuccess, isLoading } = api.groups.getShifts.useQuery(groupId);
+  const { data, isSuccess } = api.groups.getShifts.useQuery(groupId);
 
   if (!groupId) {
     return <div>404: group not found!</div>;
@@ -125,11 +122,7 @@ const FindMember = (props: { groupId: string }) => {
 
 // List all current members of a group and assigned shifts
 const MemberList = (props: { groupId: string; shifts: Shift[] }) => {
-  const { data, isSuccess, isLoading } = api.users.getGroupUsers.useQuery(
-    props.groupId
-  );
-
-  const { mutate } = api.groups.assignToShift.useMutation();
+  const { data, isLoading } = api.users.getGroupUsers.useQuery(props.groupId);
 
   const today = startOfToday();
 
@@ -181,36 +174,6 @@ const MemberList = (props: { groupId: string; shifts: Shift[] }) => {
         ))}
       </div>
     </div>
-    /*
-      {isSuccess &&
-        data.map((user) => (
-          <div key={user.id} className="flex h-1/2 w-full flex-row">
-            <div className="border-round absolute sticky left-0 flex flex min-h-full w-40 flex-col items-center justify-center bg-gray-200">
-              <text className="text-sm font-bold">{user.name}</text>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const selectData = new FormData(e.currentTarget);
-                  const id = selectData.get("shift") as string;
-                  mutate({ userId: user.id, shiftId: id });
-                }}
-              >
-                <select
-                  className="select-ghost select select-xs"
-                  defaultValue={"add shift"}
-                  name="shift"
-                >
-                  <option value="add shift">Add Shift</option>
-                  {props.shifts.map((shift) => (
-                    <option key={shift.id} value={shift.id}>
-                      {shift.startDate.toLocaleDateString("en")}
-                    </option>
-                  ))}
-                </select>
-                <button type="submit">test</button>
-              </form>
-            </div>
-                  */
   );
 };
 
@@ -278,12 +241,8 @@ const CreateShift = (props: { groupId: string }) => {
   );
 };
 
-const dayOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"];
-
 const ShiftTable = (props: { groupId: string }) => {
-  const { data, isSuccess, isLoading } = api.groups.getShifts.useQuery(
-    props.groupId
-  );
+  const { data, isLoading } = api.groups.getShifts.useQuery(props.groupId);
 
   const today = startOfToday();
 
@@ -386,23 +345,5 @@ const ShiftDisplay = (props: { shift: Shift[] | undefined }) => {
       <div className="h-12 border"></div>
       <div className="h-12 border"></div>
     </div>
-  );
-};
-
-const Temp = (props: { hour: number }) => {
-  const shiftTimes = {
-    6: "row-start-1",
-    7: "row-start-2",
-    8: "row-start-3",
-    9: "row-start-4",
-    10: "row-start-5",
-  };
-
-  return (
-    <div
-      className={`absolute z-10 ${
-        shiftTimes[props.hour as keyof typeof shiftTimes]
-      }`}
-    ></div>
   );
 };
