@@ -41,7 +41,7 @@ const Group: NextPage = () => {
         </div>
         <text className="text-xl font-bold text-white">Shifts</text>
         <div className="flex h-full flex-col items-center">
-          <ShiftTable groupId={groupId} />
+          <ShiftGrid groupId={groupId} />
           {isAdmin.data?.userRole === "ADMIN" && (
             <CreateShift groupId={groupId} />
           )}
@@ -155,11 +155,8 @@ const MemberList = (props: { groupId: string; shifts: Shift[] }) => {
           ))}
         </div>
         {data?.map((member) => (
-          <div className="flex flex-row">
-            <div
-              key={member.id}
-              className="w-40 flex-none snap-start overflow-hidden border-b border-r border-black bg-slate-300 pt-10 text-center"
-            >
+          <div key={member.id} className="flex flex-row">
+            <div className="w-40 flex-none snap-start overflow-hidden border-b border-r border-black bg-slate-300 pt-10 text-center">
               <div className="text-md font-semibold">{member.name}</div>
               <div className="text-sm">{member.email}</div>
             </div>
@@ -242,21 +239,30 @@ const CreateShift = (props: { groupId: string }) => {
   );
 };
 
-const ShiftTable = (props: { groupId: string }) => {
-  const { data, isLoading } = api.groups.getShifts.useQuery(props.groupId);
+const ShiftGrid = (props: { groupId: string }) => {
+  const { data, isSuccess, isLoading } = api.groups.getShifts.useQuery(
+    props.groupId
+  );
 
-  const today = startOfToday();
+  const shiftTimes: { [index: string]: string } = {
+    "6 AM": "row-start-1",
+    "7 AM": "row-start-2",
+    "8 AM": "row-start-3",
+    "9 AM": "row-start-4",
+    "10 AM": "row-start-5",
+    "11 AM": "row-start-6",
+  };
 
   const dates = eachDayOfInterval({
-    start: startOfWeek(today),
-    end: endOfWeek(today),
+    start: startOfWeek(startOfToday()),
+    end: endOfWeek(startOfToday()),
   });
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const filterByDay = (day: Date) => {
+  const filteredShifts = (day: Date) => {
     const shifts = data!.filter((shift) => isSameDay(shift.startDate, day));
     return shifts;
   };
@@ -292,60 +298,49 @@ const ShiftTable = (props: { groupId: string }) => {
               <div className="h-12 w-full self-center bg-slate-500 pt-3 text-white">
                 {format(day, "E")}
               </div>
-              <ShiftDisplay shift={filterByDay(day)} />
+              <div className="relative z-0 grid grid-cols-1">
+                {isSuccess &&
+                  data
+                    .filter((shift) => isSameDay(shift.startDate, day))
+                    .map((time) => {
+                      return (
+                        <div
+                          key={time.startDate.toString()}
+                          style={{
+                            gridRowStart: `${format(time.startDate, "h")}`,
+                          }}
+                          className="absolute z-10 h-48 w-full rounded bg-blue-500 bg-opacity-90 shadow-md"
+                        >
+                          <span>{format(time.startDate, "h aa")}</span>
+                          <span>~</span>
+                          <span>{format(time.endDate, "h aa")}</span>
+                        </div>
+                      );
+                    })}
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+                <div className="h-12 border"></div>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
-  );
-};
-
-const ShiftDisplay = (props: { shift: Shift[] | undefined }) => {
-  const shiftTimes: { [index: string]: string } = {
-    "6 AM": "row-start-1",
-    "7 AM": "row-start-2",
-    "8 AM": "row-start-3",
-    "9 AM": "row-start-4",
-    "10 AM": "row-start-5",
-    "11 AM": "row-start-6",
-  };
-
-  console.log(props.shift);
-
-  return (
-    <div className="relative z-0 grid grid-cols-1">
-      {props.shift!.map((time) => {
-        const t =
-          shiftTimes[format(time.startDate, "h aa") as keyof typeof shiftTimes];
-        return (
-          <div
-            key={time.startDate.toString()}
-            className={`absolute z-10 h-48 w-full rounded bg-blue-500 bg-opacity-90 shadow-md ${t}`}
-          >
-            {format(time.startDate, "h aa")} ~ {format(time.endDate, "h aa")}
-          </div>
-        );
-      })}
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
-      <div className="h-12 border"></div>
     </div>
   );
 };
