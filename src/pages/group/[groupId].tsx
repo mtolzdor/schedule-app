@@ -11,7 +11,7 @@ import {
   endOfWeek,
 } from "date-fns";
 import { useRouter } from "next/router";
-import { NextPage } from "next/types";
+import type { NextPage } from "next/types";
 import { useState } from "react";
 import { useDebouncer } from "~/hooks/useDebouncer";
 import { api } from "~/utils/api";
@@ -244,28 +244,16 @@ const ShiftGrid = (props: { groupId: string }) => {
     props.groupId
   );
 
-  const shiftTimes: { [index: string]: string } = {
-    "6 AM": "row-start-1",
-    "7 AM": "row-start-2",
-    "8 AM": "row-start-3",
-    "9 AM": "row-start-4",
-    "10 AM": "row-start-5",
-    "11 AM": "row-start-6",
-  };
+  const today = startOfToday();
 
   const dates = eachDayOfInterval({
-    start: startOfWeek(startOfToday()),
-    end: endOfWeek(startOfToday()),
+    start: startOfWeek(today),
+    end: endOfWeek(today),
   });
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  const filteredShifts = (day: Date) => {
-    const shifts = data!.filter((shift) => isSameDay(shift.startDate, day));
-    return shifts;
-  };
 
   return (
     <div className="relative m-6 flex h-full w-full flex-shrink justify-center rounded-lg bg-gradient-to-b from-slate-800 to-slate-700 px-10 pb-6 pt-3 shadow-inner">
